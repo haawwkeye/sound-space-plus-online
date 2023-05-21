@@ -26,6 +26,9 @@ export async function encryptPassword(plain: string) {
 	return await bcrypt.hash(plain, 8)
 }
 export async function createAccount(name: string, pass: string) {
+	if (name.trim() != name) return [false, "Username cannot start or end with whitespace"]
+	if (name.length > 24 || name.length < 3) return [false, "Username must be between 3-20 characters"]
+
 	var existing = await prisma.user.findFirst({
 		where: {
 			name: {
@@ -35,6 +38,8 @@ export async function createAccount(name: string, pass: string) {
 		}
 	})
 	if (existing) return [false, "Username is already taken"]
+
+	if (pass.length < 8) return [false, "Password must be 8 characters or more"]
 
 	var user = await prisma.user.create(
 		{
