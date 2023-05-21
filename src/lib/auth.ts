@@ -18,8 +18,8 @@ export async function applyNewSession(user: User, event: RequestEvent) {
 			cookie: hashedToken
 		}
 	})
-	event.cookies.set("ss+sid", session.id, { maxAge: 31536000 }) // One Year
-	event.cookies.set("ss+tkn", sessionToken)
+	event.cookies.set("ss+sid", session.id, { maxAge: 31536000, path: "/", sameSite: "lax" }) // One Year
+	event.cookies.set("ss+tkn", sessionToken, { maxAge: 31536000, path: "/", sameSite: "lax" })
 }
 
 export async function encryptPassword(plain: string) {

@@ -12,8 +12,6 @@ export const POST: RequestHandler = async (event) => {
 	var password = form?.get("password")
 	if (!(username && password)) throw error(400)
 
-
-
 	var status = await createAccount(username.toString(), password.toString())
 	if (status[0])
 		await applyNewSession(status[1] as User, event)
