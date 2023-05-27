@@ -16,13 +16,22 @@ async function attachUserToRequest(sessionId: string, sessionToken: string, even
 	var serverToken = session.cookie
 	if (clientToken != serverToken) return
 
+	var userAgent = event.request.headers.get("User-Agent") ?? "N/A"
+	var ip = event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
+	if (userAgent != session.userAgent) {
+		await prisma.session.delete({
+			where: {
+				id: session.id
+			}
+		})
+		return
+	}
 	prisma.session.update({
 		where: {
 			id: session.id
 		},
 		data: {
-			userAgents: { push: event.request.headers.get("User-Agent") ?? "N/A" },
-			ips: { push: event.request.headers.get("X-Real-IP") ?? event.getClientAddress() }
+			ip: ip
 		}
 	})
 

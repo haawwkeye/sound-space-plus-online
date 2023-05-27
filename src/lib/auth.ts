@@ -15,7 +15,8 @@ export async function applyNewSession(user: User, event: RequestEvent) {
 	var session = await prisma.session.create({
 		data: {
 			userId: user.id,
-			cookie: hashedToken
+			cookie: hashedToken,
+			userAgent: event.request.headers.get("User-Agent") ?? "N/A"
 		}
 	})
 	event.cookies.set("ss+sid", session.id, { maxAge: 31536000, path: "/", sameSite: "lax" }) // One Year
