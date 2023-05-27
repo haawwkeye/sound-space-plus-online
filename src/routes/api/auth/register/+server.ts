@@ -4,8 +4,18 @@ import type { User } from "@prisma/client";
 import type { RequestHandler } from "@sveltejs/kit";
 import { json, error } from "@sveltejs/kit";
 
+const ratelimit = 20000
+var limits: any = {}
+
 export const POST: RequestHandler = async (event) => {
 	if (event.locals.user) throw error(403)
+
+	var ip = event.request.headers.get("X-Real-IP") || event.getClientAddress()
+	if (ip in limits) {
+		if (Date.now() - limits[ip] < ratelimit)
+			throw error(403)
+	}
+	limits[ip] = Date.now()
 
 	const form = await event.request.formData()
 	var username = form?.get("username")
