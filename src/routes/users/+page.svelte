@@ -11,6 +11,7 @@
 
 	let list: Array<User> = [];
 	let noPages: number = 0;
+	let count: number = 0;
 	async function getUsers(page: number, search?: string) {
 		var result = await fetch(
 			`/api/users/list?page=${page}&search=${search}`
@@ -18,6 +19,7 @@
 		if (!result.ok) return;
 		var json = await result.json();
 		list = json.users;
+		count = json.count;
 		noPages = json.pages;
 	}
 
@@ -31,6 +33,7 @@
 </script>
 
 <h2>Users</h2>
+<p>{count} total</p>
 <ul>
 	{#each list as user}
 		<li class="user">

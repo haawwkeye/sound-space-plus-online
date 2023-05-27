@@ -23,5 +23,5 @@ export const GET: RequestHandler = async (event) => {
 		take: pagesize,
 		skip: page * pagesize
 	})
-	return json({ users: list, pages: Math.ceil(total / pagesize) })
+	return json({ users: list, count: total, pages: Math.ceil(total / pagesize) })
 }
