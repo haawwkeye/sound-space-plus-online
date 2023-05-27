@@ -26,8 +26,8 @@ model Session {
   id           String       @id @unique @default(cuid())
   type         SessionType  @default(WEB)
   user         User         @relation(fields: [userId], references: [id])
-  cookie       String?
-  userAgent    String?
+  cookie       String
+  userAgent    String
   ip           String?
   location     String?
   lastAccessed DateTime     @default(now())
