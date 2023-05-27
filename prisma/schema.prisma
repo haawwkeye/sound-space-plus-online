@@ -26,8 +26,8 @@ model Session {
   type         SessionType? @default(WEB)
   user         User         @relation(fields: [userId], references: [id])
   cookie       String?
-  userAgents   String[]
-  ips          String[]
+  userAgent    String?
+  ip           String?
   location     String?
   lastAccessed DateTime?    @default(now())
   userId       Int
