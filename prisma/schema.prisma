@@ -13,6 +13,7 @@ datasource db {
 model User {
   id          Int       @id @unique @default(autoincrement())
   name        String    @unique
+  nameHistory String[]
   avatar      String?
   verified    Boolean   @default(false)
   role        Role      @default(USER)
