@@ -26,14 +26,6 @@ async function attachUserToRequest(sessionId: string, sessionToken: string, even
 		})
 		return
 	}
-	prisma.session.update({
-		where: {
-			id: session.id
-		},
-		data: {
-			ip: ip
-		}
-	})
 
 	var user = await prisma.user.findUnique({
 		where: {
@@ -50,15 +42,15 @@ async function attachUserToRequest(sessionId: string, sessionToken: string, even
 	})
 	if (!user) return
 
-	prisma.session.update({
+	await prisma.session.update({
 		where: {
 			id: session.id
 		},
 		data: {
-			lastAccessed: new Date(Date.now())
+			lastAccessed: new Date(Date.now()),
+			ip: ip
 		}
 	})
-
 	event.locals.user = user
 }
 
