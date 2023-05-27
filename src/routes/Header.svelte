@@ -9,12 +9,13 @@
 	<nav>
 		<ul>
 			{#if $user}
-				<li class="right">{$user.name}</li>
+				<li class="right"><a href="/u/{$user.id}">{$user.name}</a></li>
 			{:else}
 				<li class="right"><a href="register">Register</a></li>
 				<li class="right"><a href="login">Login</a></li>
 			{/if}
 			<li><a href="/">Home</a></li>
+			<li><a href="/users">Users</a></li>
 		</ul>
 	</nav>
 </header>
@@ -26,7 +27,6 @@
 		justify-content: space-between;
 		text-align: center;
 		color: white;
-		margin-bottom: 1em;
 	}
 
 	nav {
