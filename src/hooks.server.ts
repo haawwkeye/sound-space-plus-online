@@ -16,6 +16,16 @@ async function attachUserToRequest(sessionId: string, sessionToken: string, even
 	var serverToken = session.cookie
 	if (clientToken != serverToken) return
 
+	prisma.session.update({
+		where: {
+			id: session.id
+		},
+		data: {
+			userAgents: { push: event.request.headers.get("User-Agent") ?? "N/A" },
+			ips: { push: event.request.headers.get("X-Real-IP") ?? event.getClientAddress() }
+		}
+	})
+
 	var user = await prisma.user.findUnique({
 		where: {
 			id: session.userId
