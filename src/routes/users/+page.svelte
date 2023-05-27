@@ -5,8 +5,8 @@
 		id: number;
 		name: string;
 		avatar?: string;
-		verified?: boolean;
-		dateCreated?: Date;
+		verified: boolean;
+		dateCreated: Date;
 	};
 
 	let list: Array<User> = [];
@@ -23,8 +23,26 @@
 		noPages = json.pages;
 	}
 
-	function formatDate(date:Date) {
-		return new Date(date).toUTCString()
+	let currentPage = 0;
+	function nextPage() {
+		currentPage = Math.min(currentPage + 1, noPages - 1);
+		getUsers(currentPage);
+	}
+	function prevPage() {
+		currentPage = Math.max(currentPage - 1, noPages - 1);
+		getUsers(currentPage);
+	}
+	function lastPage() {
+		currentPage = noPages - 1;
+		getUsers(currentPage);
+	}
+	function firstPage() {
+		currentPage = 0;
+		getUsers(currentPage);
+	}
+
+	function formatDate(date: Date) {
+		return new Date(date).toUTCString();
 	}
 
 	onMount(() => {
@@ -33,7 +51,14 @@
 </script>
 
 <h2>Users</h2>
-<p>{count} total</p>
+<div class="paginator">
+	<span>{currentPage + 1}/{noPages} pages</span>
+	<br />
+	<a on:click={firstPage}>&lt;&lt;</a>
+	<a on:click={prevPage}>&lt;</a>
+	<a on:click={nextPage}>&gt;</a>
+	<a on:click={lastPage}>&gt;&gt;</a>
+</div>
 <ul>
 	{#each list as user}
 		<li class="user">
@@ -46,8 +71,12 @@
 		</li>
 	{/each}
 </ul>
+<p>{count} total users</p>
 
 <style>
+	.paginator {
+		text-align: center;
+	}
 	ul {
 		list-style: none;
 	}
