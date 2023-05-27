@@ -12,10 +12,10 @@ datasource db {
 
 model User {
   id          Int       @id @unique @default(autoincrement())
-  name        String	@unique
+  name        String    @unique
   avatar      String?
-  verified    Boolean?  @default(false)
-  role        Role?     @default(USER)
+  verified    Boolean   @default(false)
+  role        Role      @default(USER)
   pass        String?
   sessions    Session[]
   dateCreated DateTime? @default(now())
@@ -23,13 +23,13 @@ model User {
 
 model Session {
   id           String       @id @unique @default(cuid())
-  type         SessionType? @default(WEB)
+  type         SessionType  @default(WEB)
   user         User         @relation(fields: [userId], references: [id])
-  cookie       String?
-  userAgent    String?
+  cookie       String
+  userAgent    String
   ip           String?
   location     String?
-  lastAccessed DateTime?    @default(now())
+  lastAccessed DateTime     @default(now())
   userId       Int
 }
 
