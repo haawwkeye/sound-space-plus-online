@@ -1,5 +1,5 @@
 import prisma from "$lib/prisma";
-import { json } from "@sveltejs/kit";
+import { json, error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async (event) => {
@@ -10,11 +10,14 @@ export const GET: RequestHandler = async (event) => {
 			name: true,
 			avatar: true,
 			verified: true,
-			dateCreated: true
+			dateCreated: true,
+			role: true
 		},
 		where: {
 			id: id
 		}
 	})
+	if (!user)
+		throw error(404)
 	return json(user)
 }

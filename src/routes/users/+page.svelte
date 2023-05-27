@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from "$app/stores";
 	import { onMount } from "svelte";
 
 	type User = {
@@ -7,6 +8,7 @@
 		avatar?: string;
 		verified: boolean;
 		dateCreated: Date;
+		role: string;
 	};
 
 	let list: Array<User> = [];
@@ -23,13 +25,13 @@
 		noPages = json.pages;
 	}
 
-	let currentPage = 0;
+	let currentPage = Number($page.url.searchParams.get("pg") ?? 0);
 	function nextPage() {
 		currentPage = Math.min(currentPage + 1, noPages - 1);
 		getUsers(currentPage);
 	}
 	function prevPage() {
-		currentPage = Math.max(currentPage - 1, noPages - 1);
+		currentPage = Math.max(currentPage - 1, 0);
 		getUsers(currentPage);
 	}
 	function lastPage() {
@@ -46,7 +48,7 @@
 	}
 
 	onMount(() => {
-		getUsers(0);
+		getUsers(currentPage);
 	});
 </script>
 
@@ -54,10 +56,12 @@
 <div class="paginator">
 	<span>{currentPage + 1}/{noPages} pages</span>
 	<br />
-	<a on:click={firstPage}>&lt;&lt;</a>
-	<a on:click={prevPage}>&lt;</a>
-	<a on:click={nextPage}>&gt;</a>
-	<a on:click={lastPage}>&gt;&gt;</a>
+	<a on:click={firstPage} href="?pg=0"> &lt;&lt;</a>
+	<a on:click={prevPage} href="?pg={Math.max(currentPage - 1, 0)}"> &lt;</a>
+	<a on:click={nextPage} href="?pg={Math.min(currentPage + 1, noPages - 1)}">
+		&gt;</a
+	>
+	<a on:click={lastPage} href="?pg={noPages - 1}"> &gt;&gt;</a>
 </div>
 <ul>
 	{#each list as user}
@@ -66,6 +70,10 @@
 				<a href="/u/{user.id}">
 					{user.name}
 				</a>
+				{#if user.verified}
+					<span>&#10004;</span>
+				{/if}
+				<span>{user.role}</span>
 			</p>
 			<p>{formatDate(user.dateCreated)}</p>
 		</li>

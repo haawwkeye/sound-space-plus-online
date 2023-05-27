@@ -15,7 +15,8 @@ export const GET: RequestHandler = async (event) => {
 			name: true,
 			avatar: true,
 			verified: true,
-			dateCreated: true
+			dateCreated: true,
+			role: true
 		},
 		orderBy: {
 			dateCreated: "desc"
