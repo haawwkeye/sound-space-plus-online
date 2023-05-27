@@ -2,7 +2,7 @@ import prisma from "$lib/prisma";
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
-const pagesize = 50
+const pagesize = 20
 
 export const GET: RequestHandler = async (event) => {
 	var page = Number(event.url.searchParams.get("page") ?? 0)
