@@ -17,7 +17,7 @@ async function attachUserToRequest(sessionId: string, sessionToken: string, even
 	if (clientToken != serverToken) return
 
 	var userAgent = event.request.headers.get("User-Agent") ?? "N/A"
-	var ip = event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
+	var ip = event.request.headers.get("CF-Connecting-IP") ?? event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
 	if (userAgent != session.userAgent) {
 		await prisma.session.delete({
 			where: {
