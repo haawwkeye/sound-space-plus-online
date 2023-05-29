@@ -3,6 +3,7 @@ import type { RequestEvent } from "@sveltejs/kit";
 import type { User } from "@prisma/client";
 import * as bcrypt from "bcrypt"
 import * as crypto from "crypto"
+import { usernameAppropriate, usernameAvailable } from "$lib/util";
 
 export async function comparePasswords(plain: string, encrypted: string) {
 	return await bcrypt.compare(plain, encrypted)
@@ -30,15 +31,11 @@ export async function createAccount(name: string, pass: string) {
 	if (name.trim() != name) return [false, "Username cannot start or end with whitespace"]
 	if (name.length > 24 || name.length < 3) return [false, "Username must be between 3-20 characters"]
 
-	var existing = await prisma.user.findFirst({
-		where: {
-			name: {
-				equals: name,
-				mode: "insensitive"
-			}
-		}
-	})
-	if (existing) return [false, "Username is already taken"]
+	var appropriate = usernameAppropriate(name);
+	if (!appropriate) return [false, "Username is not appropriate"]
+
+	var available = await usernameAvailable(name);
+	if (!available) return [false, "Username is already taken"]
 
 	if (pass.length < 8) return [false, "Password must be 8 characters or more"]
 
