@@ -3,7 +3,7 @@ import prisma from "$lib/prisma";
 import * as crypto from "crypto";
 
 async function attachUserToRequest(sessionId: string, sessionToken: string, event: RequestEvent) {
-	const session = await prisma.session.findUnique({
+	var session = await prisma.session.findUnique({
 		where: {
 			id: sessionId
 		}
@@ -42,7 +42,7 @@ async function attachUserToRequest(sessionId: string, sessionToken: string, even
 	})
 	if (!user) return
 
-	await prisma.session.update({
+	session = await prisma.session.update({
 		where: {
 			id: session.id
 		},
@@ -52,6 +52,7 @@ async function attachUserToRequest(sessionId: string, sessionToken: string, even
 		}
 	})
 	event.locals.user = user
+	event.locals.session = session
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
