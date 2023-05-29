@@ -10,7 +10,7 @@ var limits: any = {}
 export const POST: RequestHandler = async (event) => {
 	if (event.locals.user) throw error(403)
 
-	var ip = event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
+	var ip = event.request.headers.get("CF-Connecting-IP") ?? event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
 	if (ip in limits) {
 		if (Date.now() - limits[ip] < ratelimit)
 			throw error(403)
