@@ -1,4 +1,4 @@
-import { applyNewSession, createAccount } from "$lib/auth";
+import { applyNewSession, createAccount, ipInBlacklistedRanges } from "$lib/auth";
 import prisma from "$lib/prisma";
 import type { User } from "@prisma/client";
 import type { RequestHandler } from "@sveltejs/kit";
@@ -11,7 +11,7 @@ export const POST: RequestHandler = async (event) => {
 	if (event.locals.user) throw error(403)
 
 	var ip = event.request.headers.get("CF-Connecting-IP") ?? event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
-	if (ip in limits) {
+	if (await ipInBlacklistedRanges(ip) || ip in limits) {
 		if (Date.now() - limits[ip] < ratelimit)
 			throw error(403)
 	}

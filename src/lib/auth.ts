@@ -4,6 +4,23 @@ import type { User } from "@prisma/client";
 import * as bcrypt from "bcrypt"
 import * as crypto from "crypto"
 import { usernameAppropriate, usernameAvailable } from "$lib/util";
+import check_many_cidrs from "ip-range-check";
+
+var blacklistedRanges: Array<string>
+var lastBlacklistUpdate: number = 0
+var blacklistUpdateFrequency = 86400000
+
+export async function updateBlacklistedRanges() {
+	lastBlacklistUpdate = Date.now()
+	var result = await fetch("https://raw.githubusercontent.com/X4BNet/lists_vpn/main/output/datacenter/ipv4.txt")
+	var text = await result.text()
+	var list = text.replace(/\r\n/g, "\r").replace(/\n/g, "\r").split(/\r/)
+	blacklistedRanges = list
+}
+export async function ipInBlacklistedRanges(ip: string) {
+	if (!blacklistedRanges || Date.now() - lastBlacklistUpdate > blacklistUpdateFrequency) await updateBlacklistedRanges();
+	return check_many_cidrs(ip, blacklistedRanges)
+}
 
 export async function comparePasswords(plain: string, encrypted: string) {
 	return await bcrypt.compare(plain, encrypted)
