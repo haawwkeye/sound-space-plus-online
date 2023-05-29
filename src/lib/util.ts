@@ -54,8 +54,8 @@ export async function identifyAlts(userId: number) {
 			}
 		},
 		select: {
-			userId: true
+			user: true
 		}
 	})
-	return otherSessions.map(session => session.userId)
+	return otherSessions.map(session => session.user)
 }
