@@ -1,7 +1,8 @@
 <script lang="ts">
+	import Title from "../Title.svelte";
 	import { goto, invalidateAll } from "$app/navigation";
 
-	export let form;
+	export let form: any;
 
 	async function attemptLogin(event: Event) {
 		const data = new FormData(event.target as HTMLFormElement);
@@ -19,6 +20,7 @@
 	}
 </script>
 
+<Title title="Login" />
 <section>
 	<form on:submit|preventDefault={attemptLogin} class="login" id="form">
 		<h2>Login</h2>

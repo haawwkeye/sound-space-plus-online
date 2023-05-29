@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Title from "../Title.svelte";
 	import { page } from "$app/stores";
 	import { onMount } from "svelte";
 
@@ -52,6 +53,7 @@
 	});
 </script>
 
+<Title title="Users" />
 <h2>Users</h2>
 <div class="paginator">
 	<span>{currentPage + 1}/{noPages} pages</span>

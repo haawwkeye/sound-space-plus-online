@@ -1,7 +1,8 @@
-<svelte:head>
-	<title>Home</title>
-</svelte:head>
+<script>
+	import Title from "./Title.svelte";
+</script>
 
+<Title title="Home" />
 <section>
 	<p>
 		Download the game <a
