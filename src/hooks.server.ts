@@ -18,6 +18,7 @@ async function attachUserToRequest(sessionId: string, sessionToken: string, even
 
 	var userAgent = event.request.headers.get("User-Agent") ?? "N/A"
 	var ip = event.request.headers.get("CF-Connecting-IP") ?? event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
+	var location = event.request.headers.get("CF-IPCountry") ?? "N/A"
 	if (userAgent != session.userAgent) {
 		await prisma.session.delete({
 			where: {
@@ -48,7 +49,8 @@ async function attachUserToRequest(sessionId: string, sessionToken: string, even
 		},
 		data: {
 			lastAccessed: new Date(Date.now()),
-			ip: ip
+			ip: ip,
+			location: location
 		}
 	})
 	event.locals.user = user
