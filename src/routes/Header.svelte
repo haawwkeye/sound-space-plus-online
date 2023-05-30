@@ -16,8 +16,8 @@
 					</li>{/if}
 				<li class="right"><a href="/u/{$user.id}">{$user.name}</a></li>
 			{:else}
-				<li class="right"><a href="register">Register</a></li>
-				<li class="right"><a href="login">Login</a></li>
+				<li class="right"><a href="/register">Register</a></li>
+				<li class="right"><a href="/login">Login</a></li>
 			{/if}
 		</ul>
 	</nav>
