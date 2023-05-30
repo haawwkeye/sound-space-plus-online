@@ -12,4 +12,3 @@ export const load: PageServerLoad = async ({ params }) => {
 	if (!user) throw error(404)
 	return { user: user }
 }
-export const prerender = true;
