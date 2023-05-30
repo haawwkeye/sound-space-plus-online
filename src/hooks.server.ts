@@ -1,4 +1,4 @@
-import type { Handle, RequestEvent } from "@sveltejs/kit";
+import type { Handle, HandleServerError, RequestEvent } from "@sveltejs/kit";
 import prisma from "$lib/prisma";
 import * as crypto from "crypto";
 
@@ -68,4 +68,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	const response = await resolve(event)
 	return response
+}
+export const handleError: HandleServerError = async () => {
+	return { message: "" }
 }
