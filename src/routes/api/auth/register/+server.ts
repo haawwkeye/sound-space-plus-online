@@ -4,7 +4,7 @@ import type { User } from "@prisma/client";
 import type { RequestHandler } from "@sveltejs/kit";
 import { json, error } from "@sveltejs/kit";
 
-const ratelimit = 60000
+const ratelimit = 3600000
 var limits: any = {}
 
 export const POST: RequestHandler = async (event) => {
@@ -13,7 +13,7 @@ export const POST: RequestHandler = async (event) => {
 	var ip = event.request.headers.get("CF-Connecting-IP") ?? event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
 	if (await ipInBlacklistedRanges(ip) || ip in limits) {
 		if (Date.now() - limits[ip] < ratelimit)
-			throw error(403)
+			throw error(429)
 	}
 	limits[ip] = Date.now()
 
