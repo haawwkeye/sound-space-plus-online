@@ -11,11 +11,11 @@ export const POST: RequestHandler = async (event) => {
 	if (event.locals.user) throw error(403)
 
 	var ip = event.request.headers.get("CF-Connecting-IP") ?? event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
-	if (await ipInBlacklistedRanges(ip) || ip in limits) {
-		if (Date.now() - limits[ip] < ratelimit)
-			throw error(429)
-	}
-	limits[ip] = Date.now()
+	if (await ipInBlacklistedRanges(ip))
+		throw error(403)
+
+	if (ip in limits && (Date.now() - limits[ip] < ratelimit))
+		throw error(429)
 
 	const form = await event.request.formData()
 	var username = form?.get("username")
@@ -23,8 +23,10 @@ export const POST: RequestHandler = async (event) => {
 	if (!(username && password)) throw error(400)
 
 	var status = await createAccount(username.toString(), password.toString())
-	if (status[0])
+	if (status[0]) {
+		limits[ip] = Date.now()
 		await applyNewSession(status[1] as User, event)
+	}
 
 	return json({
 		success: status[0],
