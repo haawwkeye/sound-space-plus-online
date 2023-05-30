@@ -31,11 +31,11 @@ export async function usernameAvailable(name: string) {
 	return true
 }
 export function usernameValid(name: string) {
-	var valid = new RegExp('^[^\s][\p{L}\p{Lo}\p{N}\p{S}\p{P}\p{Zs}]+[^\s]$', 'iu')
+	var valid = /^[^\s][\p{L}\p{Lo}\p{N}\p{S}\p{P}\p{Zs}]+[^\s]$/iu
 	return valid.test(name)
 }
 export function usernameAppropriate(name: string) {
-	var nword = new RegExp('n(i|1|l)(gg{1,})(a|e)?r?s?', 'i')
+	var nword = /n(i|1|l)(gg{1,})(a|e)?r?s?/gi
 	return !nword.test(name)
 }
 
