@@ -2,14 +2,20 @@ import type { RequestEvent } from "@sveltejs/kit";
 import { error } from "@sveltejs/kit";
 import prisma from "$lib/prisma";
 
+export const RoleMap: any = {
+	"USER": 0,
+	"MOD": 1,
+	"ADMIN": 2
+}
+
 export function requireAuth(event: RequestEvent) {
 	var { user } = event.locals
 	if (!user) throw error(403)
 	return user
 }
-export function requireRole(event: RequestEvent, role: string) {
+export function requireRole(event: RequestEvent, role: number) {
 	var user = requireAuth(event)
-	if (user.role != role) throw error(403)
+	if ((RoleMap[user.role] ?? 0) < role) throw error(403)
 }
 
 export async function usernameAvailable(name: string) {
@@ -25,7 +31,7 @@ export async function usernameAvailable(name: string) {
 	return true
 }
 export function usernameValid(name: string) {
-	var valid = new RegExp('^[^\s][\p{L}\p{Lo}\p{N}\p{S}\p{P} ]+[^\s]$', 'iu')
+	var valid = new RegExp('^[^\s][\p{L}\p{Lo}\p{N}\p{S}\p{P}\p{Zs}]+[^\s]$', 'iu')
 	return valid.test(name)
 }
 export function usernameAppropriate(name: string) {

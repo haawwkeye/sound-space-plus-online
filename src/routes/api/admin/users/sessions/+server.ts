@@ -6,7 +6,7 @@ import { json } from "@sveltejs/kit";
 export const GET: RequestHandler = async (event) => {
 	requireAuth(event)
 	var idString = event.url.searchParams.get("id")
-	if (idString) requireRole(event, "ADMIN")
+	if (idString) requireRole(event, 2)
 	var id = Number(idString ?? event.locals.user.id)
 
 	var sessions = await prisma.session.findMany({
