@@ -4,7 +4,7 @@ import type { User } from "@prisma/client";
 import type { RequestHandler } from "@sveltejs/kit";
 import { json, error } from "@sveltejs/kit";
 
-const ratelimit = 20000
+const ratelimit = 60000
 var limits: any = {}
 
 export const POST: RequestHandler = async (event) => {

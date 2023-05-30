@@ -18,8 +18,9 @@ export async function updateBlacklistedRanges() {
 	blacklistedRanges = list
 }
 export async function ipInBlacklistedRanges(ip: string) {
-	if (!blacklistedRanges || Date.now() - lastBlacklistUpdate > blacklistUpdateFrequency) await updateBlacklistedRanges();
-	return check_many_cidrs(ip, blacklistedRanges)
+	//if (!blacklistedRanges || Date.now() - lastBlacklistUpdate > blacklistUpdateFrequency) await updateBlacklistedRanges();
+	//return check_many_cidrs(ip, blacklistedRanges)
+	return false
 }
 
 export async function comparePasswords(plain: string, encrypted: string) {
