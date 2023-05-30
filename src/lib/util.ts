@@ -24,10 +24,13 @@ export async function usernameAvailable(name: string) {
 	if (existing) return false
 	return true
 }
+export function usernameValid(name: string) {
+	var valid = new RegExp('^[^\s][\p{L}\p{Lo}\p{N}\p{S}\p{P} ]+[^\s]$', 'iu')
+	return valid.test(name)
+}
 export function usernameAppropriate(name: string) {
 	var nword = new RegExp('n(i|1|l)(gg{1,})(a|e)?r?s?', 'i')
-	if (nword.test(name)) return false
-	return true
+	return !nword.test(name)
 }
 
 export async function identifyAlts(userId: number) {

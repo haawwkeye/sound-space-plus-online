@@ -3,7 +3,7 @@ import type { RequestEvent } from "@sveltejs/kit";
 import type { User } from "@prisma/client";
 import * as bcrypt from "bcrypt"
 import * as crypto from "crypto"
-import { usernameAppropriate, usernameAvailable } from "$lib/util";
+import { usernameAppropriate, usernameAvailable, usernameValid } from "$lib/util";
 import check_many_cidrs from "ip-range-check";
 
 var blacklistedRanges: Array<string>
@@ -46,8 +46,10 @@ export async function encryptPassword(plain: string) {
 	return await bcrypt.hash(plain, 8)
 }
 export async function createAccount(name: string, pass: string) {
-	if (name.trim() != name) return [false, "Username cannot start or end with whitespace"]
-	if (name.length > 24 || name.length < 3) return [false, "Username must be between 3-20 characters"]
+	if (name.length > 24 || name.length < 3) return [false, "Username must be between 3-24 characters"]
+
+	var valid = usernameValid(name)
+	if (!valid) return [false, "Username contains invalid characters"]
 
 	var appropriate = usernameAppropriate(name);
 	if (!appropriate) return [false, "Username is not appropriate"]
