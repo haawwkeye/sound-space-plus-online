@@ -2,44 +2,66 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id          Int       @id @unique @default(autoincrement())
-  name        String    @unique
-  nameHistory String[]
-  avatar      String?
-  verified    Boolean   @default(false)
-  role        Role      @default(USER)
-  pass        String?
-  sessions    Session[]
-  dateCreated DateTime? @default(now())
+    id          Int          @id @unique @default(autoincrement())
+    name        String
+    nameHistory String[]
+    avatar      String?
+    verified    Boolean      @default(false)
+    role        Role         @default(USER)
+    pass        String?
+    sessions    Session[]
+    moderations Moderation[]
+    dateCreated DateTime?    @default(now())
 }
 
 model Session {
-  id           String       @id @unique @default(cuid())
-  type         SessionType  @default(WEB)
-  user         User         @relation(fields: [userId], references: [id])
-  cookie       String?
-  userAgent    String?
-  ip           String?
-  location     String?
-  lastAccessed DateTime     @default(now())
-  userId       Int
+    id           String      @id @unique @default(uuid())
+    type         SessionType @default(WEB)
+    user         User        @relation(fields: [userId], references: [id])
+    cookie       String?
+    userAgent    String?
+    ip           String?
+    location     String?
+    lastAccessed DateTime    @default(now())
+    dateCreated  DateTime    @default(now())
+    userId       Int
+}
+
+model Moderation {
+    id           Int            @id @unique @default(autoincrement())
+    user         User           @relation(fields: [userId], references: [id])
+    type         ModerationType
+    item         String?
+    reason       String         @default("No reason provided")
+    resolved     Boolean        @default(false)
+    dateResolved DateTime?
+    dateCreated  DateTime       @default(now())
+    expiresAt    DateTime?
+    userId       Int
 }
 
 enum Role {
-  USER
-  ADMIN
+    USER
+    MOD
+    ADMIN
 }
 
 enum SessionType {
-  WEB
-  GAME
+    WEB
+    GAME
+}
+
+enum ModerationType {
+    NAME
+    WARN
+    BAN
 }
