@@ -40,6 +40,9 @@ export function usernameAppropriate(name: string) {
 }
 
 export async function identifyAlts(userId: number) {
+	var alts: Array<any> = []
+	var altIds: Array<number> = []
+
 	var ips: Array<string> = []
 	var sessions = await prisma.session.findMany({
 		where: {
@@ -63,8 +66,20 @@ export async function identifyAlts(userId: number) {
 			}
 		},
 		select: {
-			user: true
+			user: {
+				select: {
+					id: true,
+					name: true
+				}
+			}
 		}
 	})
-	return otherSessions.map(session => session.user)
+	otherSessions.forEach(session => {
+		if (!(session.user.id in altIds)) {
+			alts.push(session.user)
+			altIds.push(session.user.id)
+		}
+	});
+
+	return alts
 }

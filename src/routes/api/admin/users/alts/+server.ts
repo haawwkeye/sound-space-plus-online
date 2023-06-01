@@ -5,6 +5,6 @@ export const GET: RequestHandler = async (event) => {
 	requireRole(event, 1)
 
 	var id = Number(event.url.searchParams.get("id") ?? 0)
-	var alts = identifyAlts(id)
+	var alts = await identifyAlts(id)
 	return json(alts)
 }

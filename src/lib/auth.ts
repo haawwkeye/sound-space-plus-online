@@ -42,10 +42,69 @@ export async function applyNewSession(user: User, event: RequestEvent) {
 	event.cookies.set("ss+tkn", sessionToken, { maxAge: 31536000, path: "/", sameSite: "lax" })
 }
 
+export async function attachUserToRequest(sessionId: string, sessionToken: string, event: RequestEvent) {
+	var session = await prisma.session.findFirst({
+		where: {
+			id: sessionId,
+			invalid: false
+		}
+	})
+	if (!session) return
+
+	var hash = crypto.createHash("md5")
+	hash.update(sessionToken)
+	var clientToken = hash.digest("hex")
+	var serverToken = session.cookie
+	if (clientToken != serverToken) return
+
+	var userAgent = event.request.headers.get("User-Agent") ?? "N/A"
+	var ip = event.request.headers.get("CF-Connecting-IP") ?? event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
+	var location = event.request.headers.get("CF-IPCountry") ?? "N/A"
+	if (userAgent != session.userAgent) {
+		await prisma.session.update({
+			where: {
+				id: session.id
+			},
+			data: {
+				invalid: true
+			}
+		})
+		return
+	}
+
+	var user = await prisma.user.findUnique({
+		where: {
+			id: session.userId
+		},
+		select: {
+			name: true,
+			avatar: true,
+			dateCreated: true,
+			id: true,
+			role: true,
+			verified: true
+		}
+	})
+	if (!user) return
+
+	session = await prisma.session.update({
+		where: {
+			id: session.id
+		},
+		data: {
+			lastAccessed: new Date(Date.now()),
+			ip: ip,
+			location: location
+		}
+	})
+	event.locals.user = user
+	event.locals.session = session
+}
+
 export async function encryptPassword(plain: string) {
 	return await bcrypt.hash(plain, 8)
 }
-export async function createAccount(name: string, pass: string) {
+export async function createAccount(name: string, pass: string, location?: string) {
 	if (name.length > 24 || name.length < 3) return [false, "Username must be between 3-24 characters"]
 
 	var valid = usernameValid(name)
@@ -63,7 +122,8 @@ export async function createAccount(name: string, pass: string) {
 		{
 			data: {
 				name: name,
-				pass: await encryptPassword(pass)
+				pass: await encryptPassword(pass),
+				registerLocation: location
 			}
 		}
 	)

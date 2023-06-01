@@ -22,7 +22,9 @@ export const POST: RequestHandler = async (event) => {
 	var password = form?.get("password")
 	if (!(username && password)) throw error(400)
 
-	var status = await createAccount(username.toString(), password.toString())
+	var location = event.request.headers.get("CF-IPCountry") ?? "N/A"
+
+	var status = await createAccount(username.toString(), password.toString(), location)
 	if (status[0]) {
 		limits[ip] = Date.now()
 		await applyNewSession(status[1] as User, event)
