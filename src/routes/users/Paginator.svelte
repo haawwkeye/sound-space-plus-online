@@ -13,3 +13,9 @@
 	>
 	<a href="?pg={$page.data.noPages}"> &gt;&gt;</a>
 </div>
+
+<style>
+	.paginator {
+		text-align: center;
+	}
+</style>
