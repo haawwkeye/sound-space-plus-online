@@ -2,7 +2,7 @@ import prisma from "$lib/prisma";
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
-const pagesize = 20
+const pagesize = 16
 
 export const GET: RequestHandler = async (event) => {
 	var page = Number(event.url.searchParams.get("page") ?? 0)
@@ -10,6 +10,16 @@ export const GET: RequestHandler = async (event) => {
 
 	var total = await prisma.user.count()
 	var list = await prisma.user.findMany({
+		where: {
+			moderations: {
+				none: {
+					NOT: {
+						type: "WARN"
+					},
+					resolved: false
+				}
+			}
+		},
 		select: {
 			id: true,
 			name: true,
