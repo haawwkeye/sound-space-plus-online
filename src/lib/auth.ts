@@ -91,7 +91,6 @@ export async function attachUserToRequest(sessionId: string, sessionToken: strin
 	})
 	event.locals.user = user
 	event.locals.session = session
-	console.log(user.name)
 }
 
 export async function encryptPassword(plain: string) {
