@@ -4,7 +4,7 @@ import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params }) => {
 	var id = Number(params.id ?? 0);
-	var user = await prisma.user.findUnique({
+	var user = await prisma.user.findFirst({
 		where: {
 			id: id
 		}
