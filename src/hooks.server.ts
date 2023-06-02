@@ -7,7 +7,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const sessionToken = cookies.get("ss+tkn")
 	if (sessionId && sessionToken) await attachUserToRequest(sessionId, sessionToken, event)
 
-	if (!event.locals.user) {
+	if ((sessionId || sessionToken) && !event.locals.user) {
 		cookies.delete("ss+sid")
 		cookies.delete("ss+tkn")
 	}

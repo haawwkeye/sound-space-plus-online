@@ -24,7 +24,7 @@ export const POST: RequestHandler = async (event) => {
 
 	var location = event.request.headers.get("CF-IPCountry") ?? "N/A"
 
-	var status = await createAccount(username.toString(), password.toString(), location)
+	var status = await createAccount(username.toString(), password.toString(), ip, location)
 	if (status[0]) {
 		limits[ip] = Date.now()
 		await applyNewSession(status[1] as User, event)
