@@ -164,7 +164,6 @@
 	<div id="userOptionsContainer">
 		<hr>
 		<div id="userButtonContainer">
-			<button style="display: none;" class="adminSelected">Style</button>
 			<button id="nameHistoryBtn" on:click={() => changeOption("nameHistory")}>Name History</button>
 			<button id="moderationHistoryBtn" on:click={() => changeOption("moderationHistory")}>Moderation History</button>
 			{#if $admin.role == "ADMIN"}
@@ -213,7 +212,7 @@
 						<div id="session">
 							<b>Session Id: <b class="show">{session.id}</b></b>
 							<br>
-							<b>IP Address: <b class="hoverShow">{session.ip}</b></b>
+							<b>IP Address: <b class="hoverShow" on:click={(event) => event.currentTarget.classList.toggle('adminSelected')} aria-hidden="true">{session.ip}</b></b>
 							<br>
 							<b>Location: <b class="show">{session.location}</b></b>
 							<br>
@@ -310,7 +309,7 @@
 		width: auto !important;
 	}
 
-	button.adminSelected {
+	button:is(.adminSelected) {
 		background-color: rgb(110, 110, 110) !important;
 	}
 
@@ -345,7 +344,8 @@
 		transition: all 0.25s;
 	}
 
-	#session .hoverShow:hover {
+	#session .hoverShow:hover,
+	#session :is(.hoverShow.adminSelected) {
 		color: var(--color-theme-1);
 		text-shadow: 0 0 0px var(--color-theme-1);
 	}
