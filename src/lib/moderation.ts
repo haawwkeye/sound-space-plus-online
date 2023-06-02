@@ -13,14 +13,11 @@ function getModerationType(type: number)
 }
 
 export async function moderateUser(adminUser: App.Locals["user"], userId: number, type: number, reason: string | undefined, expiresAt: Date | undefined) {
-	var moderatedUser = await prisma.user.findUnique({
+	var victim = await prisma.user.findUnique({
 		where: {
 			id: userId
 		},
 		select: {
-			// name: true,
-			// avatar: true,
-			// dateCreated: true,
 			id: true,
 			role: true,
 			verified: true
@@ -29,10 +26,10 @@ export async function moderateUser(adminUser: App.Locals["user"], userId: number
 
     var _type: string = getModerationType(type);
 
-	if (moderatedUser == null) return {success: false, message: `${userId} doesn't exist`}
+	if (victim == null) return {success: false, message: `${userId} doesn't exist`}
     if (_type == null) return {success: false, message: "Moderation type doesn't exist"}
-	if (moderatedUser.id == adminUser.id) return {success: false, message: "Cannot moderate yourself"}
-	if (moderatedUser.role <= adminUser.role) return {success: false, message: `Cannot moderate ${userId} same role or higher`}
+	if (victim.id == adminUser.id) return {success: false, message: "Cannot moderate yourself"}
+	if (victim.role <= adminUser.role) return {success: false, message: `Cannot moderate ${userId} same role or higher`}
 
     // TODO: do this but better Lol
     var modType: ModerationType = ModerationType.WARN;
@@ -41,7 +38,7 @@ export async function moderateUser(adminUser: App.Locals["user"], userId: number
 
 	var moderationCase = await prisma.moderation.create({
         data: {
-            userId: moderatedUser.id,
+            userId: victim.id,
             adminId: adminUser.id,
             type: modType,
             reason: reason,
