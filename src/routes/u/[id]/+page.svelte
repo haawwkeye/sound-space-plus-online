@@ -23,4 +23,5 @@
 <Title title={user.name} />
 <h2>{user.name}</h2>
 {#if user.verified} <span>This user is verified</span><br /> {/if}
+{#if user.role == "MOD"} <span>This user is a mod</span><br /> {/if}
 {#if user.role == "ADMIN"} <span>This user is an admin</span><br /> {/if}
