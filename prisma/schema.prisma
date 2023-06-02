@@ -11,19 +11,20 @@ datasource db {
 }
 
 model User {
-    id          Int          @id @unique @default(autoincrement())
-    name        String
-    nameHistory String[]
-    avatar      String?
-    verified    Boolean      @default(false)
-    role        Role         @default(USER)
-    pass        String?
-    sessions    Session[]
-    moderations Moderation[]
-    registerIp  String?
-    ownedAlts   Alt[]        @relation("altOwner")
-    matchedAlts Alt[]        @relation("alt")
-    dateCreated DateTime?    @default(now())
+    id               Int          @id @unique @default(autoincrement())
+    name             String
+    nameHistory      String[]
+    avatar           String?
+    verified         Boolean      @default(false)
+    role             Role         @default(USER)
+    pass             String?
+    sessions         Session[]
+    moderations      Moderation[] @relation("victim")
+    moderationsGiven Moderation[] @relation("admin")
+    registerIp       String?
+    ownedAlts        Alt[]        @relation("altOwner")
+    matchedAlts      Alt[]        @relation("alt")
+    dateCreated      DateTime?    @default(now())
 }
 
 model Session {
@@ -42,7 +43,8 @@ model Session {
 
 model Moderation {
     id           Int            @id @unique @default(autoincrement())
-    user         User           @relation(fields: [userId], references: [id])
+    user         User           @relation("victim", fields: [userId], references: [id])
+    admin        User           @relation("admin", fields: [adminId], references: [id])
     type         ModerationType
     item         String?
     reason       String         @default("No reason provided")
@@ -51,6 +53,7 @@ model Moderation {
     dateCreated  DateTime       @default(now())
     expiresAt    DateTime?
     userId       Int
+    adminId      Int
 }
 
 model Alt {
