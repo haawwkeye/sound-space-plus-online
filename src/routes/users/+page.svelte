@@ -30,9 +30,6 @@
 <Paginator />
 
 <style>
-	.paginator {
-		text-align: center;
-	}
 	ul {
 		list-style: none;
 	}
