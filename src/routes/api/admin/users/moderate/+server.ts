@@ -23,7 +23,7 @@ export const GET: RequestHandler = async (event) => {
     if (id == -1 || (resolve == false && type == -1)) return json({message: "UserId/ModerationType required!"});
 
     var moderated = await moderateUser(event.locals.user, id, type, reason, date);
-    if (moderated == null) moderated = {success: false, message: "Unknown Status"}
+    if (moderated == null) moderated = [false, "Unknown error"];
 
 	return json(moderated)
 }
