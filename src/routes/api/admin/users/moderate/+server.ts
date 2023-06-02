@@ -1,5 +1,5 @@
 import { requireRole } from "$lib/util";
-import { moderateUser } from "$lib/moderation";
+import { moderateUser, resolveModeration } from "$lib/moderation";
 import { json, type RequestHandler } from "@sveltejs/kit";
 
 function convertToDate(date: string | null) : Date | undefined
@@ -19,11 +19,14 @@ export const GET: RequestHandler = async (event) => {
 
 	var id = Number(idString)
     var type = Number(typeString)
+    var res;
 
     if (id == -1 || (resolve == false && type == -1)) return json({message: "UserId/ModerationType required!"});
 
-    var moderated = await moderateUser(event.locals.user, id, type, reason, date);
-    if (moderated == null) moderated = [false, "Unknown error"];
+    if (!resolve) res = await moderateUser(event.locals.user, id, type, reason, date);
+    else res = await resolveModeration(event.locals.user, id);
 
-	return json(moderated)
+    if (res == null) res = [false, "Unknown Error"];
+
+	return json(res)
 }
