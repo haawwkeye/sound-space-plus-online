@@ -5,6 +5,8 @@
 	const admin: any = getContext("user");
 
 	export let moderateRes: any;
+	export let resolveModRes: any;
+	
 	var moderationType: number;
 
 	var userId: number;
@@ -40,7 +42,7 @@
 		var id = element.value;
 		var result = await fetch(`/api/users/profile?id=${id}`);
 		if (result.ok) user = await result.json();
-		userName = user?.name ?? "N/A";
+		userName = user?.name ?? "";
 	}
 	async function findUserName() {
 		resetUserData();
@@ -49,7 +51,7 @@
 		var name = element.value;
 		var result = await fetch(`/api/users/profile?name=${name}`);
 		if (result.ok) user = await result.json();
-		userId = user?.id ?? "N/A";
+		userId = user?.id ?? 0;
 	}
 
 	// TODO: Change the 3 functions here to be better
@@ -65,9 +67,15 @@
 		if (result.ok) moderations = await result.json();
 	}
 
+	async function getUser(id: number) {
+		var result = await fetch(`/api/users/profile?id=${id}`);
+		if (result.ok) return await result.json();
+		return {name: `Failed to get user ${id}` } // just so it's easier to send the error...
+	}
+
 	async function getNameHistory() {
 		if (!user) return;
-		nameHistory = user.nameHistory;
+		nameHistory = user?.nameHistory ?? [];
 	}
 	// 
 
@@ -108,15 +116,26 @@
 		moderationType = Number(type.value) ?? 1;
 	}
 
-	// TODO: Add moderation stuff to users
 	async function moderateUser()
 	{
 		if (!user) return;
+		var reason = document.getElementById("reason") as HTMLInputElement;
+		var date = document.getElementById("expiresAt") as HTMLInputElement;
+		var perm = document.getElementById("perm") as HTMLInputElement;
+
+		var endDate = date?.value ?? "Never";
+		if (perm?.value == "true") endDate = "Never";
+
+		// TODO: Look into a better way of doing this link stuff
+		var link = `/api/admin/users/moderate?id=${user.id}&type=${moderationType}${reason.value != "" ? "&reason=" + reason.value : ""}${endDate != "Never" ? "&date=" + endDate : ""}`;
+		var result = await fetch(link);
+		moderateRes = await result.json();
 	}
 
-	function resolveModeration(caseId: number)
+	async function resolveModeration(caseId: number)
 	{
-
+		var result = await fetch(`/api/admin/users/moderate?id=${caseId}&resolve=true`);
+		resolveModRes = await result.json();
 	}
 
 	const formatDate = (date: Date) => {
@@ -180,6 +199,17 @@
 			{:else if currentTab == "moderationHistory"}
 				<h2>Moderation History</h2>
 				<div id="content">
+					{#if resolveModRes && !resolveModRes[0]}
+						<br>
+						<b>Failed to moderate user</b>
+						<br>
+						<b>Please send the following error in #staff-chat</b>
+						<br>
+						<b>{resolveModRes[1]}</b>
+					{:else if resolveModRes && resolveModRes[0]}
+						<br>
+						<b>Successfully moderated the selected user</b>
+					{/if}
 					{#each moderations ?? [] as moderation}
 						<div id="moderation">
 							<h3>{moderation.type}</h3>
@@ -189,7 +219,11 @@
 								<p>Date Resolved: <b>{formatDate(new Date(moderation.dateResolved))}</b></p>
 							{/if}
 							<p>Reason: <b>{moderation.reason}</b></p>
-							<p>Moderated By: <b>{moderation.admin.name}</b></p>
+							<p>Moderated By: {#await getUser(moderation.adminId)}
+								<b>Loading Admin...</b>
+							{:then adminUser} 
+								<b>{adminUser.name}</b>
+							{/await}</p>
 							<p>Date Moderated: <b>{formatDate(new Date(moderation.dateCreated))}</b></p>
 							{#if moderation.expiresAt}
 								<p>Date Moderation Expires: <b>{formatDate(new Date(moderation.expiresAt))}</b></p>
@@ -234,7 +268,8 @@
 					{#if moderationType != 1}
 						<div class="moderateItemContainer">
 							<label for="expiresAt"><b>Expires At:</b></label>
-							<input name="expiresAt" type="date" id="expiresAt">
+							<!-- Hacky min date thing -->
+							<input name="expiresAt" min="{new Date(Date.now() + 86400000).toISOString().split('T')[0]}" type="date" id="expiresAt">
 						</div>
 						<div class="moderateItemContainer">
 							<label for="perm"><b>Permanent?</b></label>
@@ -242,14 +277,12 @@
 						</div>
 					{/if}
 					<input type="button" value="Submit Action" on:click={moderateUser} />
-					{#if moderateRes && !moderateRes.success}
+					{#if moderateRes && !moderateRes[0]}
 						<br>
 						<b>Failed to moderate user</b>
 						<br>
-						<b>Please send the following error in #staff-chat</b>
-						<br>
-						<b>{moderateRes?.message}</b>
-					{:else if moderateRes && moderateRes.success}
+						<b>{moderateRes[1]}</b>
+					{:else if moderateRes && moderateRes[0]}
 						<br>
 						<b>Successfully moderated the selected user</b>
 					{/if}
