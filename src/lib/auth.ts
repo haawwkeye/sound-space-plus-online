@@ -104,7 +104,7 @@ export async function attachUserToRequest(sessionId: string, sessionToken: strin
 export async function encryptPassword(plain: string) {
 	return await bcrypt.hash(plain, 8)
 }
-export async function createAccount(name: string, pass: string, location?: string) {
+export async function createAccount(name: string, pass: string, ip?: string, location?: string) {
 	if (name.length > 24 || name.length < 3) return [false, "Username must be between 3-24 characters"]
 
 	var valid = usernameValid(name)
@@ -123,6 +123,7 @@ export async function createAccount(name: string, pass: string, location?: strin
 			data: {
 				name: name,
 				pass: await encryptPassword(pass),
+				registerIp: ip,
 				registerLocation: location
 			}
 		}

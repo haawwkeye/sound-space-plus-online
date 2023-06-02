@@ -22,6 +22,7 @@ model User {
     moderations      Moderation[] @relation("victim")
     moderationsGiven Moderation[] @relation("admin")
     registerIp       String?
+    registerLocation String?
     ownedAlts        Alt[]        @relation("altOwner")
     matchedAlts      Alt[]        @relation("alt")
     dateCreated      DateTime?    @default(now())
