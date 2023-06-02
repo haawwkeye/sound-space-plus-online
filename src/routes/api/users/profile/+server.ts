@@ -22,7 +22,8 @@ export const GET: RequestHandler = async (event) => {
 			avatar: true,
 			verified: true,
 			dateCreated: true,
-			role: true
+			role: true,
+			nameHistory: true
 		},
 		where: search
 	})

@@ -56,22 +56,18 @@
 	async function getSessions() {
 		if (!user) return;
 		var result = await fetch(`/api/admin/users/sessions?id=${user.id}`);
-
 		if (result.ok) sessions = await result.json();
 	}
 	
 	async function getModerations() {
 		if (!user) return;
-		// var result = await fetch(`/api/admin/users/cases?id=${user.id}`);
-
-		// if (result.ok) moderations = await result.json();
+		var result = await fetch(`/api/admin/users/cases?id=${user.id}`);
+		if (result.ok) moderations = await result.json();
 	}
 
 	async function getNameHistory() {
 		if (!user) return;
-		// var result = await fetch(`/api/admin/users/names?id=${user.id}`);
-
-		// if (result.ok) nameHistory = await result.json();
+		nameHistory = user.nameHistory;
 	}
 	// 
 
