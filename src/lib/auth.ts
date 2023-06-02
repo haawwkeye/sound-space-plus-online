@@ -123,7 +123,7 @@ export async function createAccount(name: string, pass: string, location?: strin
 			data: {
 				name: name,
 				pass: await encryptPassword(pass),
-				registerLocation: location
+				// registerLocation: location
 			}
 		}
 	)
