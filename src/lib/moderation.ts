@@ -1,6 +1,5 @@
 import prisma from "$lib/prisma";
-import type { RequestEvent } from "@sveltejs/kit";
-import { ModerationType, type Moderation } from "@prisma/client";
+import { ModerationType } from "@prisma/client";
 
 export const ModerationTypeMap: any = {
     0: "NAME",
@@ -13,7 +12,7 @@ function getModerationType(type: number)
     return ModerationTypeMap[type] ?? null
 }
 
-export async function ModerateUser(adminUser: App.Locals["user"], userId: number, type: number, reason: string | undefined, expiresAt: Date | undefined) {
+export async function moderateUser(adminUser: App.Locals["user"], userId: number, type: number, reason: string | undefined, expiresAt: Date | undefined) {
 	var moderatedUser = await prisma.user.findUnique({
 		where: {
 			id: userId
@@ -36,15 +35,15 @@ export async function ModerateUser(adminUser: App.Locals["user"], userId: number
 	if (moderatedUser.role <= adminUser.role) return {success: false, message: `Cannot moderate ${userId} same role or higher`}
 
     // TODO: do this but better Lol
-    var ModType: ModerationType = ModerationType.WARN;
-    if (_type == "NAME") ModType = ModerationType.NAME;
-    else if (_type == "BAN") ModType = ModerationType.BAN;
+    var modType: ModerationType = ModerationType.WARN;
+    if (_type == "NAME") modType = ModerationType.NAME;
+    else if (_type == "BAN") modType = ModerationType.BAN;
 
 	var moderationCase = await prisma.moderation.create({
         data: {
             userId: moderatedUser.id,
             adminId: adminUser.id,
-            type: ModType,
+            type: modType,
             reason: reason,
             expiresAt: expiresAt,
             dateCreated: new Date(Date.now())
