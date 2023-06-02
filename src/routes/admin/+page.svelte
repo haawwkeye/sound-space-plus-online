@@ -201,14 +201,12 @@
 				<div id="content">
 					{#if resolveModRes && !resolveModRes[0]}
 						<br>
-						<b>Failed to moderate user</b>
-						<br>
-						<b>Please send the following error in #staff-chat</b>
+						<b>Failed to resolve moderation</b>
 						<br>
 						<b>{resolveModRes[1]}</b>
 					{:else if resolveModRes && resolveModRes[0]}
 						<br>
-						<b>Successfully moderated the selected user</b>
+						<b>Successfully resolved moderation</b>
 					{/if}
 					{#each moderations ?? [] as moderation}
 						<div id="moderation">
