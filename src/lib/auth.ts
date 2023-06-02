@@ -5,6 +5,7 @@ import * as bcrypt from "bcrypt"
 import * as crypto from "crypto"
 import { usernameAppropriate, usernameAvailable, usernameValid } from "$lib/util";
 import check_many_cidrs from "ip-range-check";
+import exp from "constants";
 
 var blacklistedRanges: Array<string>
 var lastBlacklistUpdate: number = 0
@@ -38,8 +39,9 @@ export async function applyNewSession(user: User, event: RequestEvent) {
 			userAgent: event.request.headers.get("User-Agent") ?? "N/A"
 		}
 	})
-	event.cookies.set("ss+sid", session.id, { maxAge: 31536000, path: "/", sameSite: "lax" }) // One Year
-	event.cookies.set("ss+tkn", sessionToken, { maxAge: 31536000, path: "/", sameSite: "lax" })
+	var expiry: Date = new Date(Date.now() + 31536000000)
+	event.cookies.set("ss+sid", session.id, { expires: expiry, path: "/", sameSite: "lax" }) // One Year
+	event.cookies.set("ss+tkn", sessionToken, { expires: expiry, path: "/", sameSite: "lax" })
 }
 
 export async function attachUserToRequest(sessionId: string, sessionToken: string, event: RequestEvent) {
@@ -60,17 +62,6 @@ export async function attachUserToRequest(sessionId: string, sessionToken: strin
 	var userAgent = event.request.headers.get("User-Agent") ?? "N/A"
 	var ip = event.request.headers.get("CF-Connecting-IP") ?? event.request.headers.get("X-Real-IP") ?? event.getClientAddress()
 	var location = event.request.headers.get("CF-IPCountry") ?? "N/A"
-	if (userAgent != session.userAgent) {
-		await prisma.session.update({
-			where: {
-				id: session.id
-			},
-			data: {
-				invalid: true
-			}
-		})
-		return
-	}
 
 	var user = await prisma.user.findUnique({
 		where: {
@@ -93,12 +84,14 @@ export async function attachUserToRequest(sessionId: string, sessionToken: strin
 		},
 		data: {
 			lastAccessed: new Date(Date.now()),
+			userAgent: userAgent,
 			ip: ip,
 			location: location
 		}
 	})
 	event.locals.user = user
 	event.locals.session = session
+	console.log(user.name)
 }
 
 export async function encryptPassword(plain: string) {
