@@ -55,6 +55,9 @@ export async function moderateUser(adminUser: App.Locals["user"], userId: number
     if (_type == "NAME") modType = ModerationType.NAME;
     else if (_type == "BAN") modType = ModerationType.BAN;
 
+    // force to null since this shouldn't happen on warns
+    if (modType == ModerationType.WARN) expiresAt = undefined;
+
 	var moderationCase = await prisma.moderation.create({
         data: {
             userId: victim.id,
