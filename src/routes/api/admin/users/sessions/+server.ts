@@ -17,7 +17,8 @@ export const GET: RequestHandler = async (event) => {
 			id: true,
 			ip: true,
 			userAgent: true,
-			location: true
+			location: true,
+			lastAccessed: true
 		}
 	})
 	return json(sessions)
