@@ -19,6 +19,10 @@
 	
 	var currentTab: string = "none";
 
+	var moderateUserTimeout: NodeJS.Timeout | null;  
+	var resolveModerationTimeout: NodeJS.Timeout | null;
+	const moderationTimeout: number = 3000;
+
 	// Reset the data provided ig /shrug
 	function resetUserData() {
 		// All of these are in a try catch func because sometimes it will error even tho it shouldn't
@@ -119,6 +123,12 @@
 	async function moderateUser()
 	{
 		if (!user) return;
+
+		if (moderateUserTimeout != null) {
+			clearTimeout(moderateUserTimeout);
+			moderateUserTimeout = null;
+		}
+
 		var reason = document.getElementById("reason") as HTMLInputElement;
 		var date = document.getElementById("expiresAt") as HTMLInputElement;
 		var perm = document.getElementById("perm") as HTMLInputElement;
@@ -130,12 +140,27 @@
 		var link = `/api/admin/users/moderate?id=${user.id}&type=${moderationType}${reason.value != "" ? "&reason=" + reason.value : ""}${endDate != "Never" ? "&date=" + endDate : ""}`;
 		var result = await fetch(link);
 		moderateRes = await result.json();
+
+		moderateUserTimeout = setTimeout(() => {
+			moderateRes = null; 
+		}, moderationTimeout);
 	}
 
 	async function resolveModeration(caseId: number)
 	{
+		if (resolveModerationTimeout != null) {
+			clearTimeout(resolveModerationTimeout);
+			resolveModerationTimeout = null;
+		}
+
 		var result = await fetch(`/api/admin/users/moderate?id=${caseId}&resolve=true`);
 		resolveModRes = await result.json();
+
+		resolveModerationTimeout = setTimeout(() => {
+			resolveModRes = null; 
+		}, moderationTimeout);
+		
+		return resolveModRes
 	}
 
 	const formatDate = (date: Date) => {
@@ -200,19 +225,19 @@
 				<h2>Moderation History</h2>
 				<div id="content">
 					{#if resolveModRes && !resolveModRes[0]}
-						<br>
-						<b>Failed to resolve moderation</b>
-						<br>
-						<b>{resolveModRes[1]}</b>
+						<div class="note warning">
+							<p><b>Failed to resolve moderation</b><br>{resolveModRes[1]}</p>
+						</div>
 					{:else if resolveModRes && resolveModRes[0]}
-						<br>
-						<b>Successfully resolved moderation</b>
+						<div class="note success">
+							<b>Successfully resolved moderation</b>
+						</div>
 					{/if}
 					{#each moderations ?? [] as moderation}
 						<div id="moderation">
 							<h3>{moderation.type}</h3>
 							<hr>
-							<p>Resolved: <b>{moderation.resolved}</b></p>
+							<p>Resolved: <b id="Resolved-{moderation.id}">{moderation.resolved}</b></p>
 							{#if moderation.resolved == true}
 								<p>Date Resolved: <b>{formatDate(new Date(moderation.dateResolved))}</b></p>
 							{/if}
@@ -227,7 +252,15 @@
 								<p>Date Moderation Expires: <b>{formatDate(new Date(moderation.expiresAt))}</b></p>
 							{/if}
 							{#if moderation.resolved == false}
-								<button on:click={() => resolveModeration(moderation.id)}>Resolve Moderation</button>
+								<button on:click={(event) => {
+									var elem = event.currentTarget;
+									resolveModeration(moderation.id).then((el) => {
+										if (el[0] != true) return;
+										var resolveTxt = document.getElementById(`Resolved-${moderation.id}`);
+										if (resolveTxt != null) resolveTxt.innerText = "true";
+										elem?.remove();
+									})
+								}}>Resolve Moderation</button>
 							{/if}
 						</div>
 					{/each}
@@ -251,6 +284,15 @@
 				<!-- {loadContent(sessions)} -->
 			{:else if currentTab == "moderateUser"}
 				<h2>Moderate User</h2>
+				{#if moderateRes && !moderateRes[0]}
+					<div class="note warning">
+						<p><b>Failed to moderate user</b><br>{moderateRes[1]}</p>
+					</div>
+				{:else if moderateRes && moderateRes[0]}
+					<div class="note success">
+						<p>Successfully moderated the selected user</p>
+					</div>
+				{/if}
 				<form id="moderate">
 					<div class="moderateItemContainer">
 						<label for="moderationType"><b>Moderation Action:</b></label>
@@ -275,15 +317,6 @@
 						</div>
 					{/if}
 					<input type="button" value="Submit Action" on:click={moderateUser} />
-					{#if moderateRes && !moderateRes[0]}
-						<br>
-						<b>Failed to moderate user</b>
-						<br>
-						<b>{moderateRes[1]}</b>
-					{:else if moderateRes && moderateRes[0]}
-						<br>
-						<b>Successfully moderated the selected user</b>
-					{/if}
 				</form>
 			{:else}
 				<p>Unknown option selected<br>{currentTab}</p>
@@ -295,6 +328,25 @@
 {/if}
 
 <style>
+	.note {
+		position: fixed;
+		bottom: 35px;
+		right: 20px;
+		margin-left: 20px;
+		max-width: 300px;
+		margin-bottom: 15px;
+  		padding: 4px 12px;
+		color: black;
+	}
+	.note.success {
+		background-color: #ddffdd;
+		border-left: 6px solid #04AA6D;
+	}
+	.note.warning {
+		background-color: #ffffcc;
+		border-left: 6px solid #ffeb3b;
+	}
+
 	form {
 		text-align: left;
 	}
