@@ -68,7 +68,10 @@
 	async function getModerations() {
 		if (!user) return;
 		var result = await fetch(`/api/admin/users/cases?id=${user.id}`);
-		if (result.ok) moderations = await result.json();
+		if (result.ok) {
+			var userModerations = await result.json();
+			moderations = userModerations.sort((a: any, b: any) => a.id + b.id);
+		}
 	}
 
 	async function getUser(id: number) {
