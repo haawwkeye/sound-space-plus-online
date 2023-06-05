@@ -198,6 +198,8 @@
 			else tab = "none";
 
 			await changeOption(tab);
+
+			window.history.replaceState({}, "", "/admin")
 		}
 	}
 </script>
