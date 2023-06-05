@@ -40,16 +40,14 @@
 	}
 
 	async function findUserId() {
-		
-
 		var element = document.getElementById("uid") as HTMLInputElement;
 		var id = element.value;
 		var result = await fetch(`/api/users/profile?id=${id}`);
 		if (result.ok) {
 			resetUserData();
 			user = await result.json();
-			userName = user?.name ?? "";
 		}
+		userName = user?.name ?? "";
 	}
 	async function findUserName() {
 		resetUserData();
@@ -57,7 +55,10 @@
 		var element = document.getElementById("name") as HTMLInputElement;
 		var name = element.value;
 		var result = await fetch(`/api/users/profile?name=${name}`);
-		if (result.ok) user = await result.json();
+		if (result.ok) {
+			resetUserData();
+			user = await result.json();
+		}
 		userId = user?.id ?? 0;
 	}
 
@@ -192,6 +193,7 @@
 		id="uid"
 		placeholder="User ID"
 		value={userId}
+		min="0"
 	/>
 	<input type="button" value="Select" on:click={findUserId} />
 	<br />
@@ -232,11 +234,11 @@
 				<div id="content">
 					{#if resolveModRes && !resolveModRes[0]}
 						<div class="note warning">
-							<p><b>Failed to resolve moderation</b><br>{resolveModRes[1]}</p>
+							<p><b>Warning!</b> Failed to resolve moderation<br>{resolveModRes[1]}</p>
 						</div>
 					{:else if resolveModRes && resolveModRes[0]}
 						<div class="note success">
-							<b>Successfully resolved moderation</b>
+							<p><b>Success!</b> Successfully resolved moderation</p>
 						</div>
 					{/if}
 					{#each moderations ?? [] as moderation}
@@ -292,11 +294,11 @@
 				<h2>Moderate User</h2>
 				{#if moderateRes && !moderateRes[0]}
 					<div class="note warning">
-						<p><b>Failed to moderate user</b><br>{moderateRes[1]}</p>
+						<p><b>Warning!</b> Failed to moderate user<br>{moderateRes[1]}</p>
 					</div>
 				{:else if moderateRes && moderateRes[0]}
 					<div class="note success">
-						<p>Successfully moderated the selected user</p>
+						<p><b>Success!</b> Successfully moderated the selected user</p>
 					</div>
 				{/if}
 				<form id="moderate">
