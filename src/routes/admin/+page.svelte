@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import Title from "../Title.svelte";
+	import { page } from "$app/stores";
 
 	const admin: any = getContext("user");
 
@@ -24,7 +25,7 @@
 	const moderationTimeout: number = 3000;
 
 	// Reset the data provided ig /shrug
-	function resetUserData() {
+	async function resetUserData() {
 		// All of these are in a try catch func because sometimes it will error even tho it shouldn't
 		try {
 			nameHistory?.pop();
@@ -36,7 +37,7 @@
 			sessions?.pop();
 		} catch { }
 
-		changeOption("none"); // Reset the option back to none
+		await changeOption("none"); // Reset the option back to none
 	}
 
 	async function findUserId() {
@@ -44,19 +45,17 @@
 		var id = element.value;
 		var result = await fetch(`/api/users/profile?id=${id}`);
 		if (result.ok) {
-			resetUserData();
+			await resetUserData();
 			user = await result.json();
 		}
 		userName = user?.name ?? "";
 	}
 	async function findUserName() {
-		resetUserData();
-
 		var element = document.getElementById("name") as HTMLInputElement;
 		var name = element.value;
 		var result = await fetch(`/api/users/profile?name=${name}`);
 		if (result.ok) {
-			resetUserData();
+			await resetUserData();
 			user = await result.json();
 		}
 		userId = user?.id ?? 0;
@@ -78,10 +77,11 @@
 		}
 	}
 
+	//TODO: Cache the result (probably not required tbh)
 	async function getUser(id: number) {
 		var result = await fetch(`/api/users/profile?id=${id}`);
 		if (result.ok) return await result.json();
-		return {name: `Failed to get user ${id}` } // just so it's easier to send the error...
+		return {id: 0, name: `Failed to get user ${id}` } // just so it's easier to send the error...
 	}
 
 	async function getNameHistory() {
@@ -101,8 +101,6 @@
 
 		var element = document.getElementById(`${opt}Btn`) as HTMLElement;
 		var selected = document.getElementsByClassName('adminSelected') as HTMLCollectionOf<Element>;
-
-		console.log(element, selected)
 
 		if (element != undefined) setTimeout(() => { element.classList.add('adminSelected'); }, 100);
 		if (selected[0] != undefined) selected[0].classList.remove('adminSelected');
@@ -182,6 +180,26 @@
 
 		return format.toString()
 	}
+
+	async function load()
+	{
+
+		if ($page.data.currentUser != 0) {
+			user = await getUser($page.data.currentUser);
+			userId = user?.id;
+			userName = user?.name;
+			
+			var tab = $page.data.currentTab;
+
+			if (tab == 1) tab = "nameHistory";
+			else if (tab == 2) tab = "moderationHistory";
+			else if (tab == 3) tab = "sessions";
+			else if (tab == 4) tab = "moderateUser";
+			else tab = "none";
+
+			await changeOption(tab);
+		}
+	}
 </script>
 
 <Title title="Admin Panel" />
@@ -206,6 +224,10 @@
 	/>
 	<input type="button" value="Find" on:click={findUserName} />
 </form>
+
+{#await load()}
+<!-- Loading page -->
+{/await}
 
 {#if user}
 	<h2>{user.name}</h2>
