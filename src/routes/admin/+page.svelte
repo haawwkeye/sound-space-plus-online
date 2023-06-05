@@ -40,13 +40,16 @@
 	}
 
 	async function findUserId() {
-		resetUserData();
+		
 
 		var element = document.getElementById("uid") as HTMLInputElement;
 		var id = element.value;
 		var result = await fetch(`/api/users/profile?id=${id}`);
-		if (result.ok) user = await result.json();
-		userName = user?.name ?? "";
+		if (result.ok) {
+			resetUserData();
+			user = await result.json();
+			userName = user?.name ?? "";
+		}
 	}
 	async function findUserName() {
 		resetUserData();
