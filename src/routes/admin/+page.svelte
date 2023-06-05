@@ -193,7 +193,7 @@
 
 			if (tab == 1) tab = "nameHistory";
 			else if (tab == 2) tab = "moderationHistory";
-			else if (tab == 3) tab = "sessions";
+			else if (tab == 3 && admin.role == "ADMIN") tab = "sessions";
 			else if (tab == 4) tab = "moderateUser";
 			else tab = "none";
 
@@ -238,7 +238,7 @@
 		<div id="userButtonContainer">
 			<button id="nameHistoryBtn" on:click={() => changeOption("nameHistory")}>Name History</button>
 			<button id="moderationHistoryBtn" on:click={() => changeOption("moderationHistory")}>Moderation History</button>
-			{#if $admin.role == "ADMIN"}
+			{#if admin.role == "ADMIN"}
 				<button id="sessionsBtn" on:click={() => changeOption("sessions")}>Sessions</button>
 			{/if}
 			<button id="moderateUserBtn" on:click={() => changeOption("moderateUser")}>Moderate User</button>
