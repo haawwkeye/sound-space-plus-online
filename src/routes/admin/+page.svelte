@@ -183,7 +183,6 @@
 
 	async function load()
 	{
-
 		if ($page.data.currentUser != 0) {
 			user = await getUser($page.data.currentUser);
 			userId = user?.id;
@@ -288,9 +287,7 @@
 									var elem = event.currentTarget;
 									resolveModeration(moderation.id).then((el) => {
 										if (el[0] != true) return;
-										var resolveTxt = document.getElementById(`Resolved-${moderation.id}`);
-										if (resolveTxt != null) resolveTxt.innerText = "true";
-										elem?.remove();
+										moderation.resolved = true;
 									})
 								}}>Resolve Moderation</button>
 							{/if}
