@@ -12,6 +12,5 @@ export const GET: RequestHandler = async (event) => {
 	response.headers.append("Content-Type", mime)
 	response.headers.append("Cross-Origin-Opener-Policy", "same-origin")
 	response.headers.append("Cross-Origin-Embedder-Policy", "require-corp")
-	console.log(event.params.file)
 	return response
 }
